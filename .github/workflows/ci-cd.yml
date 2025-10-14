@@ -59,6 +59,7 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: postgresql://repairshop:repairshop123@localhost:5432/repair_shop_db_test
+        PYTHONPATH: ${{ github.workspace }} 
       run: |
         pytest -v
   

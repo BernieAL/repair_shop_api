@@ -40,12 +40,61 @@ created init db script
 CI/CD pipeline
 
 
+GH actions spins up temp vm (fresh,clean env)
+clones your code into the vm
+runs workflow steps
+tears down the vm when done
+-this is using gh computers to run tests/build automatically so we dont have to do it manually on local machine
+
+
+
+
+
 created /github
 create /github/workflows -> ci-cd.yml
-    set up workflow to run on push or pull of main
-    job to run is 'test'
-        services to test: 
-            postgres
+    workflow jobs:
+
+        #job 1
+        test:
+            steps:
+                checkout code
+                run tests
+                    downloads postgres image
+                    starts it as docker container on vm
+                    waits for health check to pass
+                    makes it avail to localhost:5432 for tests
+                    tears down when job finishes
+                    "Think of it as: GitHub running docker run postgres:15-alpine for you automatically."
+                    STEPS:
+                        uses gh prebuilt action to checkout code - clones gh repo onto vm
+
+                        setup python on vm - uses prebuilt gh for python setup, install python on vm
+
+                        uses gh actions to caches pip dependencies - saves pip downloads between runs
+
+                        install pip dependencies
+
+                        run linting
+                            install flake8 - python code quality checker
+                            checks for syntax errors and style issues
+                            -if linting failes - the job stops here
+
+                        run tests
+                            sets env DATABASE_URL
+                            runs pytest
+                            your tests connect to postgresql from services
+
+        #job 2
+        build: #runs after test job passes
+            
+            only runs if code is pushsed to main branch specifically - because we done want to push docker images for every branch/pr only when code merges to main
+
+            steps:
+                checkout code
+                set up docker build from dockerfile
+                logs into dockerhub
+                builds docker image in vm, and pushes to dockerhub repo
+        
 
 create dockerhub repo for project
 app image pushed to dockerhub
