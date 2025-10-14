@@ -1,7 +1,12 @@
 from pydantic_settings import BaseSettings
+import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///./repair_shop.db"  # Default to SQLite for now
+    # Use environment variable or default to SQLite
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", 
+        "sqlite:///./repair_shop.db"
+    )
     SECRET_KEY: str = "your-secret-key-change-this"
     ENVIRONMENT: str = "development"
     
