@@ -12,6 +12,6 @@ class Customer(Base):
     phone = Column(String)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+    password_hash = Column(String, nullable=True)  # Add this line
     # Relationships
     devices = relationship("Device", back_populates="customer")
