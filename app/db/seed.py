@@ -7,10 +7,15 @@ from app.models.work_order import WorkOrder
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def seed_database(db: Session):
+    """Seed database with test data"""
+    
     # Check if data already exists
-    if db.query(Customer).first():
-        print("Database already seeded")
+    existing = db.query(Customer).first()
+    if existing:
+        print("⚠️  Database already seeded - found existing customer:", existing.email)
         return
+    
+    print("📝 No existing data found, inserting seed data...")
     
     # Create test customers
     customer1 = Customer(
@@ -32,6 +37,8 @@ def seed_database(db: Session):
     db.refresh(customer1)
     db.refresh(customer2)
     
+    print(f"✅ Created customers: {customer1.email}, {customer2.email}")
+    
     # Create test devices
     device1 = Device(
         device_type="Laptop",
@@ -47,32 +54,54 @@ def seed_database(db: Session):
         serial_number="SM-S911U",
         customer_id=customer1.id
     )
+    device3 = Device(
+        device_type="Tablet",
+        brand="Apple",
+        model="iPad Pro",
+        serial_number="DMPH2LL/A",
+        customer_id=customer2.id
+    )
     
     db.add(device1)
     db.add(device2)
+    db.add(device3)
     db.commit()
     db.refresh(device1)
     db.refresh(device2)
+    db.refresh(device3)
+    
+    print(f"✅ Created {db.query(Device).count()} devices")
     
     # Create test work orders
     work_order1 = WorkOrder(
         device_id=device1.id,
-        description="Screen replacement - cracked display",
-        status="in-progress",
+        title="Screen Replacement",  # ← ADD THIS
+        description="Cracked display - needs full screen replacement",
+        status="in_progress",
         cost=299.99
     )
     work_order2 = WorkOrder(
         device_id=device2.id,
-        description="Battery replacement",
+        title="Battery Replacement",  # ← ADD THIS
+        description="Battery health below 80%, customer requested replacement",
         status="completed",
         cost=89.99
+    )
+    work_order3 = WorkOrder(
+        device_id=device3.id,
+        title="Water Damage Repair",  # ← ADD THIS
+        description="Device exposed to water, needs internal cleaning and inspection",
+        status="pending",
+        cost=199.99
     )
     
     db.add(work_order1)
     db.add(work_order2)
+    db.add(work_order3)
     db.commit()
     
+    print(f"✅ Created {db.query(WorkOrder).count()} work orders")
     print("✅ Database seeded successfully!")
-    print("Test users:")
+    print("\nTest users:")
     print("  - john@test.com / password123")
     print("  - jane@test.com / password123")

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum as SQLEnum, Numeric
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from enum import Enum
@@ -19,6 +19,7 @@ class WorkOrder(Base):
     title = Column(String, nullable=False)
     description = Column(String)
     status = Column(SQLEnum(WorkOrderStatus), default=WorkOrderStatus.PENDING)
+    cost = Column(Numeric(10, 2), nullable=True)  # ← ADD THIS
     technician_notes = Column(String, nullable=True)
     estimated_completion = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
