@@ -21,7 +21,7 @@ app.include_router(work_orders.router, prefix="/work-orders", tags=["work-orders
 
 @app.get("/")
 def root():
-    return {"message": "Repair Shop API"}
+    return {"message": "Repair Shop API is running"}
 
 @app.get("/health")
 def health_check():
