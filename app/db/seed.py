@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from app.models.customer import Customer
+from app.models.customer import Customer, UserRole
 from app.models.device import Device
 from app.models.work_order import WorkOrder
 
@@ -17,27 +17,45 @@ def seed_database(db: Session):
     
     print("📝 No existing data found, inserting seed data...")
     
-    # Create test customers
+    # Create test users with different roles
+    admin = Customer(
+        name="Admin User",
+        email="admin@repairshop.com",
+        phone="555-0001",
+        password_hash=pwd_context.hash("admin123"),
+        role=UserRole.ADMIN
+    )
+    
+    technician = Customer(
+        name="Tech Smith",
+        email="tech@repairshop.com",
+        phone="555-0002",
+        password_hash=pwd_context.hash("tech123"),
+        role=UserRole.TECHNICIAN
+    )
+    
     customer1 = Customer(
         name="John Doe",
         email="john@test.com",
         phone="555-1234",
-        password_hash=pwd_context.hash("password123")
+        password_hash=pwd_context.hash("password123"),
+        role=UserRole.CUSTOMER
     )
+    
     customer2 = Customer(
         name="Jane Smith",
         email="jane@test.com",
         phone="555-5678",
-        password_hash=pwd_context.hash("password123")
+        password_hash=pwd_context.hash("password123"),
+        role=UserRole.CUSTOMER
     )
     
-    db.add(customer1)
-    db.add(customer2)
+    db.add_all([admin, technician, customer1, customer2])
     db.commit()
     db.refresh(customer1)
     db.refresh(customer2)
     
-    print(f"✅ Created customers: {customer1.email}, {customer2.email}")
+    print(f"✅ Created users with roles")
     
     # Create test devices
     device1 = Device(
@@ -62,9 +80,7 @@ def seed_database(db: Session):
         customer_id=customer2.id
     )
     
-    db.add(device1)
-    db.add(device2)
-    db.add(device3)
+    db.add_all([device1, device2, device3])
     db.commit()
     db.refresh(device1)
     db.refresh(device2)
@@ -75,33 +91,36 @@ def seed_database(db: Session):
     # Create test work orders
     work_order1 = WorkOrder(
         device_id=device1.id,
-        title="Screen Replacement",  # ← ADD THIS
+        title="Screen Replacement",
         description="Cracked display - needs full screen replacement",
         status="in_progress",
         cost=299.99
     )
     work_order2 = WorkOrder(
         device_id=device2.id,
-        title="Battery Replacement",  # ← ADD THIS
+        title="Battery Replacement",
         description="Battery health below 80%, customer requested replacement",
         status="completed",
         cost=89.99
     )
     work_order3 = WorkOrder(
         device_id=device3.id,
-        title="Water Damage Repair",  # ← ADD THIS
+        title="Water Damage Repair",
         description="Device exposed to water, needs internal cleaning and inspection",
         status="pending",
         cost=199.99
     )
     
-    db.add(work_order1)
-    db.add(work_order2)
-    db.add(work_order3)
+    db.add_all([work_order1, work_order2, work_order3])
     db.commit()
     
     print(f"✅ Created {db.query(WorkOrder).count()} work orders")
     print("✅ Database seeded successfully!")
-    print("\nTest users:")
-    print("  - john@test.com / password123")
-    print("  - jane@test.com / password123")
+    print("\n📋 Test users:")
+    print("  Admin:      admin@repairshop.com / admin123")
+    print("  Technician: tech@repairshop.com / tech123")
+    print("  Customer:   john@test.com / password123")
+    print("  Customer:   jane@test.com / password123")
+
+
+    
