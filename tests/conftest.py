@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
 
 from app.main import app
 from app.db.base_class import Base
@@ -13,14 +12,14 @@ from app.models.customer import Customer
 from app.models.device import Device
 from app.models.work_order import WorkOrder
 
-# Get test database URL from environment or use default
-SQLALCHEMY_TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://repairshop:repairshop123@localhost:5432/repair_shop_db_test"
-)
+# Use SQLite in-memory database for tests (no PostgreSQL needed!)
+SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
 
 # Create test engine
-engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False}  # Only needed for SQLite
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
