@@ -12,6 +12,9 @@ from app.models.customer import Customer
 from app.models.device import Device
 from app.models.work_order import WorkOrder
 
+from app.models.customer import Customer, UserRole
+from app.core.security import get_password_hash
+
 # Use SQLite in-memory database for tests (no PostgreSQL needed!)
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
 
@@ -63,3 +66,47 @@ def client(db):
     
     # Clear overrides
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def admin_token(client, db):
+    """Create an admin user and return auth token"""
+    # Create admin user
+    admin = Customer(
+        name="Admin Test",
+        email="admin@test.com",
+        phone="555-0000",
+        password_hash=get_password_hash("admin123"),
+        role=UserRole.ADMIN
+    )
+    db.add(admin)
+    db.commit()
+    
+    # Login and get token
+    response = client.post("/api/auth/login", json={
+        "email": "admin@test.com",
+        "password": "admin123"
+    })
+    return response.json()["access_token"]
+
+
+@pytest.fixture
+def customer_token(client, db):
+    """Create a customer user and return auth token"""
+    # Create customer user
+    customer = Customer(
+        name="Customer Test",
+        email="customer@test.com",
+        phone="555-0001",
+        password_hash=get_password_hash("customer123"),
+        role=UserRole.CUSTOMER
+    )
+    db.add(customer)
+    db.commit()
+    
+    # Login and get token
+    response = client.post("/api/auth/login", json={
+        "email": "customer@test.com",
+        "password": "customer123"
+    })
+    return response.json()["access_token"]
