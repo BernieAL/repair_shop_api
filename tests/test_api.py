@@ -20,7 +20,7 @@ def test_create_customer(client, db):
         "phone": "555-0123"
     }
     response = client.post("/api/customers", json=customer_data)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["email"] == customer_data["email"]
     assert data["name"] == customer_data["name"]
