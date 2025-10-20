@@ -5,7 +5,7 @@ def test_root(client):
     """Test root endpoint"""
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Repair Shop API"}  # Match your actual response
+    assert response.json() == {"message": "Repair Shop API is running"} 
 
 def test_health(client):
     """Test health endpoint"""

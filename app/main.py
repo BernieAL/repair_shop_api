@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers - THIS IS CRITICAL
+# Include routers 
 app.include_router(customers.router, prefix="/customers", tags=["customers"])
 app.include_router(devices.router, prefix="/devices", tags=["devices"])
 app.include_router(work_orders.router, prefix="/work-orders", tags=["work-orders"])
