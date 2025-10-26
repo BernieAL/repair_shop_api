@@ -1,14 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.api import customers, devices, work_orders, auth
 
 app = FastAPI(title="Repair Shop API")
 
-# CORS
+# CORS - Allow frontend to call API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For now, allow all
+    allow_origins=[
+        "http://localhost:3000",  # Local React dev server
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "https://repair-shop-admin.vercel.app",
+        "https://repair-shop-customer-f4rqymn69-bavarianfanboys-projects.vercel.app",
+        "https://*.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
