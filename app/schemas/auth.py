@@ -1,28 +1,28 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
-
 
 class UserLogin(BaseModel):
-    """Login request"""
     email: EmailStr
     password: str
 
-
 class UserRegister(BaseModel):
-    """Registration request"""
     name: str
     email: EmailStr
     phone: str
     password: str
 
+class UserResponse(BaseModel):
+    """User data returned in responses"""
+    id: int
+    name: str
+    email: str
+    phone: str
+    role: str
+    
+    class Config:
+        from_attributes = True  # For SQLAlchemy models
 
 class Token(BaseModel):
-    """Token response"""
+    """Token response with user data"""
     access_token: str
     token_type: str
-
-
-class TokenData(BaseModel):
-    """Data stored in token"""
-    email: Optional[str] = None
-    customer_id: Optional[int] = None
+    user: UserResponse  # ← ADD THIS FIELD

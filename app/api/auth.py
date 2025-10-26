@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-
 from app.db.session import get_db
 from app.models.customer import Customer
 from app.schemas.auth import UserLogin, UserRegister, Token
 from app.core.security import (
-    verify_password, 
-    get_password_hash, 
+    verify_password,
+    get_password_hash,
     create_access_token,
     decode_access_token
 )
@@ -15,11 +14,9 @@ from app.core.security import (
 router = APIRouter()
 security = HTTPBearer()
 
-
 @router.post("/register", response_model=Token, status_code=201)
 def register(user: UserRegister, db: Session = Depends(get_db)):
     """Register a new customer"""
-    
     # Check if email already exists
     existing_user = db.query(Customer).filter(Customer.email == user.email).first()
     if existing_user:
@@ -35,7 +32,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         email=user.email,
         phone=user.phone,
         password_hash=hashed_password,
-        role="customer"  # Default role
+        role="customer"
     )
     
     db.add(new_customer)
@@ -47,17 +44,26 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         data={
             "sub": new_customer.email,
             "customer_id": new_customer.id,
-            "role": new_customer.role.value  # ← Include role
+            "role": new_customer.role.value
         }
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
-
+    # ✅ CHANGED: Add user object to response
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": { 
+            "id": new_customer.id,
+            "name": new_customer.name,
+            "email": new_customer.email,
+            "phone": new_customer.phone,
+            "role": new_customer.role.value
+        }
+    }
 
 @router.post("/login", response_model=Token)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
     """Login and get access token"""
-    
     # Find user by email
     customer = db.query(Customer).filter(Customer.email == credentials.email).first()
     
@@ -74,12 +80,22 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
         data={
             "sub": customer.email,
             "customer_id": customer.id,
-            "role": customer.role.value  # ← Include role
+            "role": customer.role.value
         }
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
-
+    # ✅ CHANGED: Add user object to response (NOT just "user": user)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {  
+            "id": customer.id,
+            "name": customer.name,
+            "email": customer.email,
+            "phone": customer.phone,
+            "role": customer.role.value
+        }
+    }
 
 @router.get("/me")
 def get_current_user_info(
@@ -87,7 +103,6 @@ def get_current_user_info(
     db: Session = Depends(get_db)
 ):
     """Get current user info from token"""
-    
     # Decode token
     token_data = decode_access_token(credentials.credentials)
     if token_data is None:
@@ -110,5 +125,5 @@ def get_current_user_info(
         "name": customer.name,
         "email": customer.email,
         "phone": customer.phone,
-        "role": customer.role.value  # ← Include role
+        "role": customer.role.value
     }
