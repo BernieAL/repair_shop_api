@@ -1,35 +1,49 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import customers, devices, work_orders, auth
 
-app = FastAPI(title="Repair Shop API")
+# Import routers
+from app.api import auth
+from app.api.customers import router as customers_router
+from app.api.admin import router as admin_router
 
-# CORS - Allow frontend to call API
+app = FastAPI(
+    title="Repair Shop API",
+    description="API for managing device repairs with customer and admin portals",
+    version="1.0.0"
+)
+
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # Local React dev server
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "https://repair-shop-admin.vercel.app",
-        "https://repair-shop-customer-f4rqymn69-bavarianfanboys-projects.vercel.app",
-        "https://*.vercel.app",
+        "http://localhost:3000",  # Admin panel local
+        "http://localhost:3001",  # Customer portal local
+        "https://repair-shop-admin.vercel.app",  # Admin panel production
+        "https://repair-shop-customer-f4rqymn69-bavarianfanboys-projects.vercel.app",  # Customer portal production
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers 
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(customers.router, prefix="/api/customers", tags=["customers"])
-app.include_router(devices.router, prefix="/api/devices", tags=["devices"])
-app.include_router(work_orders.router, prefix="/api/work-orders", tags=["work-orders"])
+# Register routers
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(customers_router, prefix="/api/customers", tags=["Customers"])
+app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
 
+# Health check endpoint
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "message": "Repair Shop API is running"
+    }
+
+# Root endpoint
 @app.get("/")
 def root():
-    return {"message": "Repair Shop API is running"}
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy", "database": "connected"}
+    return {
+        "message": "Repair Shop API",
+        "docs": "/docs",
+        "health": "/api/health"
+    }
