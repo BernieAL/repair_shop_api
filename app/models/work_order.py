@@ -15,24 +15,26 @@ class WorkOrder(Base):
     __tablename__ = "work_orders"
     
     id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)  # ADD THIS
     device_id = Column(Integer, ForeignKey("devices.id"))
     title = Column(String, nullable=False)
     description = Column(String)
     status = Column(SQLEnum(WorkOrderStatus), default=WorkOrderStatus.PENDING)
-    cost = Column(Numeric(10, 2), nullable=True)  # ← ADD THIS
+    cost = Column(Numeric(10, 2), nullable=True)
     technician_notes = Column(String, nullable=True)
+    assigned_technician = Column(String, nullable=True)
     estimated_completion = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
+   # Relationships
+    customer = relationship("Customer", back_populates="work_orders")  # ADD THIS
     device = relationship("Device", back_populates="work_orders")
-
     messages = relationship(
         "Message",
         back_populates="work_order",
         cascade="all, delete-orphan",
-        # order_by="app.models.message.Message.created_at"
+        lazy="select"
     )
 
 

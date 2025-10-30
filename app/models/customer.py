@@ -25,6 +25,5 @@ class Customer(Base):
     
     # Relationships
     devices = relationship("Device", back_populates="customer")
-
-
+    work_orders = relationship("WorkOrder", back_populates="customer")
     notifications = relationship("Notification", back_populates="customer")

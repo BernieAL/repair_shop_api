@@ -57,7 +57,7 @@ async def get_work_order_messages(
         
         # Add sender name based on sender type
         if msg.sender_type == SenderType.CUSTOMER:
-            msg_dict["sender_name"] = f"{current_customer.first_name} {current_customer.last_name}"
+            msg_dict["sender_name"] = current_customer.name
             msg_dict["sender_avatar"] = None  # Could add customer avatar URL
         elif msg.sender_type == SenderType.TECHNICIAN:
             # In production, fetch from technician table
@@ -118,7 +118,7 @@ async def send_message(
     
     # Format response
     msg_dict = new_message.to_dict()
-    msg_dict["sender_name"] = f"{current_customer.first_name} {current_customer.last_name}"
+    msg_dict["sender_name"] = current_customer.name
     msg_dict["sender_avatar"] = None
     
     return MessageResponse(**msg_dict)
@@ -208,7 +208,7 @@ async def get_recent_messages(
         msg_dict = msg.to_dict()
         
         if msg.sender_type == SenderType.CUSTOMER:
-            msg_dict["sender_name"] = f"{current_customer.first_name} {current_customer.last_name}"
+            msg_dict["sender_name"] = current_customer.name
         elif msg.sender_type == SenderType.TECHNICIAN:
             msg_dict["sender_name"] = work_order.assigned_technician or "Technician"
         else:
