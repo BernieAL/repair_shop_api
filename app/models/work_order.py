@@ -27,3 +27,12 @@ class WorkOrder(Base):
     
     # Relationships
     device = relationship("Device", back_populates="work_orders")
+
+    messages = relationship(
+        "Message",
+        back_populates="work_order",
+        cascade="all, delete-orphan",
+        # order_by="app.models.message.Message.created_at"
+    )
+
+

@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from app.api import auth
 from app.api.customers import router as customers_router
-from app.api.admin import router as admin_router
+# from app.api.admin import router as admin_router
+from app.api.customers.messages import router as messages_router 
+from app.api.customers.notifications import router as notifications_router
 
 app = FastAPI(
     title="Repair Shop API",
@@ -26,10 +28,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Import all models so SQLAlchemy registers them
+from app.models import customer, device, work_order, notification, message  # ADD THIS LINE
+
+
 # Register routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(customers_router, prefix="/api/customers", tags=["Customers"])
-app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
+# app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
+app.include_router(messages_router, prefix="/api/customers", tags=["Messages"])
+
 
 # Health check endpoint
 @app.get("/api/health")
