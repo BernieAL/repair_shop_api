@@ -78,3 +78,37 @@ def get_unread_count(
     ).count()
     
     return {"unread_count": count}
+
+@router.delete("/{notification_id}")
+def delete_notification(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: Customer = Depends(get_current_user)
+):
+    """Delete a notification"""
+    notification = db.query(Notification).filter(
+        Notification.id == notification_id,
+        Notification.customer_id == current_user.id
+    ).first()
+    
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    db.delete(notification)
+    db.commit()
+    
+    return {"message": "Notification deleted"}
+
+
+@router.delete("/")
+def delete_all_notifications(
+    db: Session = Depends(get_db),
+    current_user: Customer = Depends(get_current_user)
+):
+    """Delete all notifications for current user"""
+    db.query(Notification).filter(
+        Notification.customer_id == current_user.id
+    ).delete()
+    db.commit()
+    
+    return {"message": "All notifications deleted"}
