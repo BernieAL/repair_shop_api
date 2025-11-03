@@ -8,11 +8,11 @@ from app.db.base_class import Base
 from app.db.session import get_db
 
 # Import all models so they're registered with Base
-from app.models.customer import Customer
+from app.models.user import Customer
 from app.models.device import Device
 from app.models.work_order import WorkOrder
 
-from app.models.customer import Customer, UserRole
+from app.models.user import Customer, UserRole
 from app.core.security import get_password_hash
 
 # Use SQLite in-memory database for tests (no PostgreSQL needed!)

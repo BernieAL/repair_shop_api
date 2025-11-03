@@ -1,129 +1,70 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from datetime import timedelta
 from app.db.session import get_db
-from app.models.customer import Customer
-from app.schemas.auth import UserLogin, UserRegister, Token
+from app.models.user import User  
+from app.models.user_role import UserRole
+from app.schemas.user import User as UserSchema, UserCreate 
 from app.core.security import (
     verify_password,
     get_password_hash,
     create_access_token,
-    decode_access_token
+    ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
 router = APIRouter()
-security = HTTPBearer()
 
-@router.post("/register", response_model=Token, status_code=201)
-def register(user: UserRegister, db: Session = Depends(get_db)):
-    """Register a new customer"""
-    # Check if email already exists
-    existing_user = db.query(Customer).filter(Customer.email == user.email).first()
-    if existing_user:
+
+@router.post("/register", response_model=UserSchema)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    # Check if user already exists
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
     
-    # Create new customer
+    # Create new user
     hashed_password = get_password_hash(user.password)
-    new_customer = Customer(
+    db_user = User(
         name=user.name,
         email=user.email,
         phone=user.phone,
-        password_hash=hashed_password,
-        role="customer"
+        password_hash=hashed_password(user.password),
+        role=UserRole.CUSTOMER
     )
-    
-    db.add(new_customer)
+    db.add(db_user)
     db.commit()
-    db.refresh(new_customer)
-    
-    # Create access token with role
-    access_token = create_access_token(
-        data={
-            "sub": new_customer.email,
-            "customer_id": new_customer.id,
-            "role": new_customer.role.value
-        }
-    )
-    
-    # ✅ CHANGED: Add user object to response
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": { 
-            "id": new_customer.id,
-            "name": new_customer.name,
-            "email": new_customer.email,
-            "phone": new_customer.phone,
-            "role": new_customer.role.value
-        }
-    }
+    db.refresh(db_user)
+    return db_user
 
-@router.post("/login", response_model=Token)
-def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Login and get access token"""
-    # Find user by email
-    customer = db.query(Customer).filter(Customer.email == credentials.email).first()
-    
-    # Verify user exists and password is correct
-    if not customer or not verify_password(credentials.password, customer.password_hash):
+
+@router.post("/login")
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Create access token with role
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={
-            "sub": customer.email,
-            "customer_id": customer.id,
-            "role": customer.role.value
-        }
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
-    
-    # ✅ CHANGED: Add user object to response (NOT just "user": user)
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user": {  
-            "id": customer.id,
-            "name": customer.name,
-            "email": customer.email,
-            "phone": customer.phone,
-            "role": customer.role.value
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
         }
-    }
-
-@router.get("/me")
-def get_current_user_info(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
-):
-    """Get current user info from token"""
-    # Decode token
-    token_data = decode_access_token(credentials.credentials)
-    if token_data is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Get user from database
-    customer = db.query(Customer).filter(Customer.email == token_data.get("sub")).first()
-    if customer is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-    
-    return {
-        "id": customer.id,
-        "name": customer.name,
-        "email": customer.email,
-        "phone": customer.phone,
-        "role": customer.role.value
     }

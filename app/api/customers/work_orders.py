@@ -5,9 +5,10 @@ from typing import List
 from app.db.session import get_db
 from app.models.work_order import WorkOrder
 from app.models.device import Device
-from app.models.customer import Customer
+from app.models.user import User
 from app.schemas.work_order import WorkOrderCreate, WorkOrderResponse
 from app.core.deps import get_current_user
+
 
 router = APIRouter()
 
@@ -15,7 +16,7 @@ router = APIRouter()
 @router.get("/", response_model=List[WorkOrderResponse])
 def get_my_work_orders(
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get all work orders for the currently logged-in customer.
@@ -32,7 +33,7 @@ def get_my_work_orders(
 def create_my_work_order(
     work_order: WorkOrderCreate,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Create a new work order for one of the customer's devices.
@@ -61,7 +62,7 @@ def create_my_work_order(
 def get_my_work_order(
     work_order_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get a specific work order (must belong to current user's devices)"""
     work_order = db.query(WorkOrder).join(Device).filter(
@@ -82,7 +83,7 @@ def get_my_work_order(
 def cancel_my_work_order(
     work_order_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Cancel a work order (only if status is 'pending').

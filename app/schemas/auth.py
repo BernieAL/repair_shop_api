@@ -19,10 +19,10 @@ class UserResponse(BaseModel):
     role: str
     
     class Config:
-        from_attributes = True  # For SQLAlchemy models
+        from_attributes = True  
 
 class Token(BaseModel):
     """Token response with user data"""
     access_token: str
     token_type: str
-    user: UserResponse  # ← ADD THIS FIELD
+    user: UserResponse  

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from app.models.customer import Customer, UserRole
+from app.models.user import UserRole
 from app.models.device import Device
 from app.models.work_order import WorkOrder
 from app.models.message import Message, SenderType
@@ -11,7 +11,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def seed_database(db: Session):
     """Seed database with test data"""
     # Check if data already exists
-    existing = db.query(Customer).first()
+    existing = db.query(UserRole).first()
     if existing:
         print("⚠️  Database already seeded - found existing customer:", existing.email)
         return
@@ -19,7 +19,7 @@ def seed_database(db: Session):
     print("📝 No existing data found, inserting seed data...")
     
     # Create test users with different roles
-    admin = Customer(
+    admin = UserRole(
         name="Admin User",
         email="admin@repairshop.com",
         phone="555-0001",
@@ -27,7 +27,7 @@ def seed_database(db: Session):
         role=UserRole.ADMIN
     )
     
-    technician = Customer(
+    technician = UserRole(
         name="Tech Smith",
         email="tech@repairshop.com",
         phone="555-0002",
@@ -35,7 +35,7 @@ def seed_database(db: Session):
         role=UserRole.TECHNICIAN
     )
     
-    customer1 = Customer(
+    customer1 = UserRole(
         name="John Doe",
         email="john@test.com",
         phone="555-1234",
@@ -43,7 +43,7 @@ def seed_database(db: Session):
         role=UserRole.CUSTOMER
     )
     
-    customer2 = Customer(
+    customer2 = UserRole(
         name="Jane Smith",
         email="jane@test.com",
         phone="555-5678",

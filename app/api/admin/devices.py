@@ -4,7 +4,8 @@ from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.device import Device
-from app.models.customer import Customer, UserRole
+from app.models.user import Customer
+from app.models.user_role import UserRole
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.core.deps import get_current_user
 

@@ -4,7 +4,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.models.device import Device
-from app.models.customer import Customer
+from app.models.user import User
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.core.deps import get_current_user
 
@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/", response_model=List[DeviceResponse])
 def get_my_devices(
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get all devices for the currently logged-in customer.
@@ -30,7 +30,7 @@ def get_my_devices(
 def create_my_device(
     device: DeviceCreate,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Create a new device for the currently logged-in customer.
@@ -51,7 +51,7 @@ def create_my_device(
 def get_my_device(
     device_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get a specific device (must belong to current user)"""
     device = db.query(Device).filter(
@@ -73,7 +73,7 @@ def update_my_device(
     device_id: int,
     device: DeviceCreate,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Update a device (must belong to current user)"""
     db_device = db.query(Device).filter(
@@ -101,7 +101,7 @@ def update_my_device(
 def delete_my_device(
     device_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Delete a device (must belong to current user)"""
     device = db.query(Device).filter(

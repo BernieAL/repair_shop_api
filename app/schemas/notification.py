@@ -1,21 +1,28 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
+from datetime import datetime
+from app.models.notification import NotificationType
+
 
 class NotificationBase(BaseModel):
-    type: str
+    user_id: int  # Changed from customer_id
+    work_order_id: int
+    type: NotificationType
     title: str
     message: str
-    work_order_id: Optional[int] = None
+    read: bool = False
+
 
 class NotificationCreate(NotificationBase):
-    customer_id: int
+    pass
 
-class NotificationResponse(NotificationBase):
+
+class NotificationUpdate(BaseModel):
+    read: Optional[bool] = None
+
+
+class Notification(NotificationBase):
     id: int
-    customer_id: int
-    read: bool
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)

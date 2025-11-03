@@ -10,7 +10,7 @@ from datetime import datetime
 from app.main import app
 from app.db.session import get_db
 from app.db.base_class import Base
-from app.models.customer import Customer
+from app.models.user import Customer
 from app.models.work_order import WorkOrder, WorkOrderStatus
 from app.models.notification import Notification, NotificationType
 from app.core.security import create_access_token

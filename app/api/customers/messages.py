@@ -9,7 +9,7 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.message import Message, SenderType
 from app.models.work_order import WorkOrder
-from app.models.customer import Customer
+from app.models.user import User
 from app.models.notification import Notification, NotificationType
 from app.schemas.message import MessageCreate, MessageResponse, MessageThread, MessageMarkRead
 
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/messages", tags=["messages"])
 async def get_work_order_messages(
     work_order_id: int,
     db: Session = Depends(get_db),
-    current_customer: Customer = Depends(get_current_user)
+    current_customer: User = Depends(get_current_user)
 ):
     """
     Get all messages for a specific work order (message thread)
@@ -82,7 +82,7 @@ async def send_message(
     work_order_id: int,
     message_data: MessageCreate,
     db: Session = Depends(get_db),
-    current_customer: Customer = Depends(get_current_user)
+    current_customer: User = Depends(get_current_user)
 ):
     """
     Send a new message in a work order thread
@@ -128,7 +128,7 @@ async def send_message(
 async def mark_messages_read(
     mark_read_data: MessageMarkRead,
     db: Session = Depends(get_db),
-    current_customer: Customer = Depends(get_current_user)
+    current_customer: User = Depends(get_current_user)
 ):
     """
     Mark specific messages as read
@@ -171,7 +171,7 @@ async def mark_messages_read(
 @router.get("/unread-count")
 async def get_unread_message_count(
     db: Session = Depends(get_db),
-    current_customer: Customer = Depends(get_current_user)
+    current_customer: User = Depends(get_current_user)
 ):
     """
     Get total count of unread messages across all work orders
@@ -190,7 +190,7 @@ async def get_unread_message_count(
 async def get_recent_messages(
     limit: int = 10,
     db: Session = Depends(get_db),
-    current_customer: Customer = Depends(get_current_user)
+    current_customer: User = Depends(get_current_user)
 ):
     """
     Get recent messages across all work orders

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.session import get_db
-from app.models.customer import Customer
+from app.models.user import User
 from app.models.notification import Notification
 from app.schemas.notification import NotificationResponse
 from app.core.deps import get_current_user
@@ -15,7 +15,7 @@ def get_my_notifications(
     limit: int = 50,
     unread_only: bool = False,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all notifications for the current user"""
     query = db.query(Notification).filter(
@@ -35,7 +35,7 @@ def get_my_notifications(
 def mark_notification_as_read(
     notification_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Mark a notification as read"""
     notification = db.query(Notification).filter(
@@ -54,7 +54,7 @@ def mark_notification_as_read(
 @router.put("/read-all")
 def mark_all_notifications_as_read(
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Mark all notifications as read"""
     db.query(Notification).filter(
@@ -69,7 +69,7 @@ def mark_all_notifications_as_read(
 @router.get("/unread-count")
 def get_unread_count(
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get count of unread notifications"""
     count = db.query(Notification).filter(
@@ -83,7 +83,7 @@ def get_unread_count(
 def delete_notification(
     notification_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Delete a notification"""
     notification = db.query(Notification).filter(
@@ -103,7 +103,7 @@ def delete_notification(
 @router.delete("/")
 def delete_all_notifications(
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Delete all notifications for current user"""
     db.query(Notification).filter(

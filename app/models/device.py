@@ -7,7 +7,7 @@ class Device(Base):
     __tablename__ = "devices"
     
     id = Column(Integer, primary_key=True, index=True)
-    customer_id = Column(Integer, ForeignKey("customers.id"))
+    customer_id = Column(Integer, ForeignKey("users.id"))
     device_type = Column(String)  # "Laptop", "Desktop", etc.
     brand = Column(String)
     model = Column(String)
@@ -16,5 +16,5 @@ class Device(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
-    customer = relationship("Customer", back_populates="devices")
+    customer = relationship("User", back_populates="devices")
     work_orders = relationship("WorkOrder", back_populates="device")

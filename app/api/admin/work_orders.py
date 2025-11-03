@@ -5,7 +5,8 @@ from typing import List, Optional
 from app.db.session import get_db
 from app.models.work_order import WorkOrder
 from app.models.device import Device
-from app.models.customer import Customer, UserRole
+from app.models.user import User
+from app.models.user_role import UserRole
 from app.schemas.work_order import WorkOrderCreate, WorkOrderResponse, WorkOrderUpdate
 from app.core.deps import get_current_user
 
@@ -17,7 +18,7 @@ def get_all_work_orders(
     customer_id: Optional[int] = None,
     status: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get all work orders (Admin/Tech only).
@@ -46,7 +47,7 @@ def get_all_work_orders(
 def get_work_order(
     work_order_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get any work order by ID (Admin/Tech only)"""
     if current_user.role not in [UserRole.ADMIN, UserRole.TECHNICIAN]:
@@ -66,7 +67,7 @@ def get_work_order(
 def create_work_order(
     work_order: WorkOrderCreate,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Create a work order for any device (Admin/Tech only)"""
     if current_user.role not in [UserRole.ADMIN, UserRole.TECHNICIAN]:
@@ -92,7 +93,7 @@ def update_work_order(
     work_order_id: int,
     work_order: WorkOrderCreate,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Update any work order (Admin/Tech only)"""
     if current_user.role not in [UserRole.ADMIN, UserRole.TECHNICIAN]:
@@ -119,7 +120,7 @@ def update_work_order_status(
     status: str,
     technician_notes: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Update work order status (Admin/Tech only).
@@ -161,7 +162,7 @@ def update_work_order_status(
 def delete_work_order(
     work_order_id: int,
     db: Session = Depends(get_db),
-    current_user: Customer = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Delete any work order (Admin only)"""
     if current_user.role != UserRole.ADMIN:

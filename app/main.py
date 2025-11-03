@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # Import all models so SQLAlchemy registers them
-from app.models import customer, device, work_order, notification, message  # ADD THIS LINE
+from app.models import device, user, work_order, notification, message  # ADD THIS LINE
 
 
 # Register routers
