@@ -21,7 +21,7 @@ class NotificationUpdate(BaseModel):
     read: Optional[bool] = None
 
 
-class Notification(NotificationBase):
+class NotificationResponse(NotificationBase):  # Changed from Notification
     id: int
     created_at: datetime
 

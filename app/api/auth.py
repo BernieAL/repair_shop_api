@@ -5,7 +5,7 @@ from datetime import timedelta
 from app.db.session import get_db
 from app.models.user import User  
 from app.models.user_role import UserRole
-from app.schemas.user import User as UserSchema, UserCreate 
+from app.schemas.user import UserResponse, UserCreate
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -16,7 +16,7 @@ from app.core.security import (
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserSchema)
+@router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     db_user = db.query(User).filter(User.email == user.email).first()

@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.user import  User
-from app.schemas.user import CustomerResponse, CustomerUpdate
+from app.schemas.user import UserResponse,UserCreate,UserUpdateSelf
 from app.core.deps import get_current_user
 
 router = APIRouter()
 
 
-@router.get("/me", response_model=CustomerResponse)
+@router.get("/me", response_model=UserResponse)
 def get_my_profile(
     current_user: User = Depends(get_current_user)
 ):
@@ -17,9 +17,9 @@ def get_my_profile(
     return current_user
 
 
-@router.put("/me", response_model=CustomerResponse)
+@router.put("/me", response_model=UserResponse)
 def update_my_profile(
-    customer_update: CustomerUpdate,
+    customer_update: UserUpdateSelf,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

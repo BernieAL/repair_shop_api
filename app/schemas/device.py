@@ -21,7 +21,7 @@ class DeviceUpdate(BaseModel):
     serial_number: Optional[str] = None
 
 
-class Device(DeviceBase):
+class DeviceResponse(DeviceBase):
     id: int
     owner_id: int  
     created_at: datetime
